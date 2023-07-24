@@ -105,8 +105,6 @@ def get_gdf_dataframe(field: np.array, x_values: np.array, y_values: np.array,
     x_grid, y_grid = np.meshgrid(x_values, y_values)
 
     df, _ = get_field_dataframe(field, x_values, y_values)
-    # Remove columns "X"
-    df = df.drop(columns=["X"])
 
     # Add testing line distance field:
     for i, x_loc in enumerate(CPT_x_locations):
@@ -128,7 +126,7 @@ def get_gdf_dataframe(field: np.array, x_values: np.array, y_values: np.array,
     df['corner_B'] = corner_distances[2].ravel()
     df['corner_C'] = corner_distances[3].ravel()
 
-    return df, [col for col in df.columns if col not in ['value', 'CPT_id']]
+    return df, [col for col in df.columns if col not in ['value', 'CPT_id', 'X']]
 
 
 
