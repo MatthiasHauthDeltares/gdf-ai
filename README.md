@@ -4,15 +4,16 @@
 
 # Geotechnical Distance Field AI: GDF-AI #
 
+Experimenting on applying machine learning to geotechnical engineering problems using Geotechnical Distance Fields (GDF).
 ## Installation ##
 
 
 
-    ```bash
+    
     cd C:\repos\gdf_ai
     conda env create -f .config\environment.yml
     conda activate gdf_ai
     poetry install
-    ```
+    
 If the installation of all the packages is not successful and error messages are appearing, run ```poetry install``` again.
 

@@ -3,7 +3,9 @@ import matplotlib.pyplot as plt
 
 
 def plot_field(field: np.array, x_values, y_values):
-    plt.imshow(field, aspect=0.25, cmap="Spectral", vmin=2, vmax=22)
+    cmap = "Spectral_r"
+
+    plt.imshow(field, aspect=0.25, cmap=cmap, vmin=2, vmax=22)
     plt.colorbar()
 
     # Choose 5 x-ticks and y-ticks evenly distributed over the data
