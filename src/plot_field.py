@@ -1,6 +1,8 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from src.random_field_generator import Field2D
+
 
 def plot_field(field: np.array, x_values, y_values):
     cmap = "Spectral_r"
@@ -20,12 +22,13 @@ def plot_field(field: np.array, x_values, y_values):
 
     plt.show()
 
-def plot_field_comparison(field_list, x_values, y_values):
 
-    fig, axs = plt.subplots(2)
+def plot_field_comparison(field_list: list[Field2D], x_values, y_values):
+    fig, axs = plt.subplots(len(field_list))
     for ax_idx, field in enumerate(field_list):
-        axs[ax_idx].imshow(field, aspect=0.25, cmap="Spectral", vmin=2, vmax=22)
-
+        axs[ax_idx].imshow(field.field_data, aspect=0.25, cmap="Spectral_r", vmin=2, vmax=22)
+        # set title on the left side of the plot:
+        axs[ax_idx].set_title(field.name, y=1, pad=-14)
 
     # plt.colorbar()
     plt.show()

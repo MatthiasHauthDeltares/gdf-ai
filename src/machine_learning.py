@@ -8,27 +8,29 @@ from sklearn.neural_network import MLPRegressor
 def split_field_train_test(field_df: pd.DataFrame,
                            number_CPT: int,
                            x_values: np.array,
-                           split_cpt: bool):
+                           split_cpt: bool,
+                           features: list[str]
+                           ):
     """Split a field into train and test data
     Right now all the CPT voxels from the field are considered as 'training' data and we test on the other voxels of
     the field where CPT are not available: this would not be applicable in practice because such field would not be
     available since we only have access to the CPT data.
+
+    :param field_df: dataframe containing the field data
+    :param number_CPT: number of CPT to use for training
+    :param x_values: x values of the field
+    :param split_cpt: if True, the CPT data are split into train and test data
+    :param features: list of features names to use
     """
 
     if split_cpt:
         raise NotImplementedError()
     # Selecting values at these indices
-    x_CPT = x_values[np.linspace(0, len(x_values) - 1, number_CPT).round().astype(int)]
-    CPT_id = [i for i in range(number_CPT)]
+
     # Prepare Data
-    data = field_df[field_df['X'].isin(x_CPT)].copy()
-
-    cpt_dict = dict(zip(x_CPT, CPT_id))
-    data.loc[:, 'CPT_id'] = data['X'].map(cpt_dict)
-
-    X = data[['X', 'Y']].values
+    data = field_df
+    X = data[features].values
     Y = data['value'].values
-    print(data)
 
     x_train, x_test, y_train, y_test = train_test_split(X, Y, test_size=0.01)
 
@@ -37,7 +39,7 @@ def split_field_train_test(field_df: pd.DataFrame,
 
 def train_model(regressor_type: str, x_train, y_train):
     if regressor_type == 'RandomForestRegressor':
-        regressor = RandomForestRegressor(n_estimators=5)
+        regressor = RandomForestRegressor(n_estimators=50)
     elif regressor_type == 'ExtraTreesRegressor':
         regressor = ExtraTreesRegressor()
     elif regressor_type == 'MLPRegressor':
@@ -50,5 +52,3 @@ def train_model(regressor_type: str, x_train, y_train):
     regressor.fit(x_train, y_train)
 
     return regressor
-
-

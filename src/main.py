@@ -6,33 +6,37 @@ from sklearn.neural_network import MLPRegressor
 
 from src.machine_learning import split_field_train_test, train_model
 from src.plot_field import plot_field, plot_field_comparison
-from src.random_field_generator import get_field, get_field_dataframe, get_gdf_dataframe
+from src.random_field_generator import get_field, get_field_dataframe, get_gdf_dataframe, Field2D
 
-field, x, y = get_field(x_max=100, y_max=20, x_resolution=0.5, y_resolution=0.05, model_type='spherical',
-                        from_pickle=False)
-
-
-
-field_data = get_field_dataframe(field, x, y)
-
-field_data_enriched = get_gdf_dataframe(field, x, y)
 
 feature_type = "gdf"  # gdf or cartesian
-
-
-
-# create Dataset for training
+split_cpt = False
 number_CPT = 5
-# Generating evenly spaced indices
+regressor = "RandomForestRegressor" #or 'RandomForestRegressor' or 'GradientBoostingRegressor'
+
+
+field, x_values, y_values = get_field(x_max=100, y_max=20, x_resolution=0.5, y_resolution=0.05, model_type='spherical',
+                        from_pickle=True)
+
+
+if feature_type == 'cartesian':
+    field_data, features = get_field_dataframe(field, x_values, y_values)
+elif feature_type == 'gdf':
+    x_CPTs = x_values[np.linspace(0, len(x_values) - 1, number_CPT).round().astype(int)]
+    field_data, features = get_gdf_dataframe(field, x_values, y_values, x_CPTs)
+else:
+    raise NotImplementedError()
+
 
 # Selecting values at these indices
 x_train, x_test, y_train, y_test = split_field_train_test(field_data,
                                                           number_CPT,
-                                                          x,
-                                                          split_cpt=False)
+                                                          x_values,
+                                                          split_cpt=split_cpt,
+                                                          features=features)
 
 
-trained_regressor = train_model('RandomForestRegressor', x_train, y_train)
+trained_regressor = train_model(regressor, x_train, y_train)
 
 # y_pred = trained_regressor.predict(x_test)
 
@@ -42,16 +46,15 @@ trained_regressor = train_model('RandomForestRegressor', x_train, y_train)
 # plt.show()
 
 
-X_field = field_data[['X', 'Y']].values
+X_field = field_data[features].values
 y_field_true = field_data['value'].values
 
 y_field_predicted = trained_regressor.predict(X_field)
 
-print(y_field_predicted.shape)
 
-field_predicted = y_field_predicted.reshape(len(y), len(x))
+field_predicted = Field2D(y_field_predicted.reshape(len(y_values), len(x_values)), "XY RandomForest")
 # plot_field(field_predicted.T, x, y)
 
-plot_field_comparison([field, field_predicted], x, y)
+plot_field_comparison([field, field_predicted], x_values, y_values)
 
-print(trained_regressor.score(y_field_true, y_field_predicted))
+# print(trained_regressor.score(y_field_true, y_field_predicted))
